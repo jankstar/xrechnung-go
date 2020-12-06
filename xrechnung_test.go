@@ -2,13 +2,24 @@
 package xrechnung
 
 import (
+	"fmt"
+	"io/ioutil"
 	"reflect"
 	"testing"
 )
 
 func TestXMLToStructure(t *testing.T) {
 	var myXMLData string
+	var myFileData []byte
 	var myXRechnung InvoiceStructure
+
+	myFileData, err := ioutil.ReadFile("01.01a-INVOICE_ubl.xml")
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+	myXMLData = string(myFileData)
+
 	type args struct {
 		xmlData string
 	}
