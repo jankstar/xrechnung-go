@@ -7,6 +7,8 @@ import (
 )
 
 func TestXMLToStructure(t *testing.T) {
+	var myXMLData string
+	var myXRechnung InvoiceStructure
 	type args struct {
 		xmlData string
 	}
@@ -16,7 +18,13 @@ func TestXMLToStructure(t *testing.T) {
 		wantXstructure InvoiceStructure
 		wantErr        bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test invoice",
+			args: args{
+				xmlData: myXMLData,
+			},
+			wantXstructure: myXRechnung,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -39,20 +47,20 @@ func TestStructureToXML(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        args
-		wantXmlData string
+		wantXMLData string
 		wantErr     bool
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotXmlData, err := StructureToXML(tt.args.xstructure)
+			gotXMLData, err := StructureToXML(tt.args.xstructure)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("StructureToXML() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if gotXmlData != tt.wantXmlData {
-				t.Errorf("StructureToXML() = %v, want %v", gotXmlData, tt.wantXmlData)
+			if gotXMLData != tt.wantXMLData {
+				t.Errorf("StructureToXML() = %v, want %v", gotXMLData, tt.wantXMLData)
 			}
 		})
 	}
