@@ -4,6 +4,7 @@ package xrechnung
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -11,9 +12,11 @@ import (
 func TestXMLToStructure(t *testing.T) {
 	var myXMLData string
 	var myFileData []byte
-	var myXRechnung InvoiceStructure
+	var myXRechnung CInvoice2__ubl
 
-	myFileData, err := ioutil.ReadFile("01.01a-INVOICE_ubl.xml")
+	xmlFile, err := os.Open("01.01a-INVOICE_ubl.xml")
+	defer xmlFile.Close()
+	myFileData, _ = ioutil.ReadAll(xmlFile)
 	if err != nil {
 		fmt.Print(err)
 		return
@@ -26,11 +29,11 @@ func TestXMLToStructure(t *testing.T) {
 	tests := []struct {
 		name           string
 		args           args
-		wantXstructure InvoiceStructure
+		wantXstructure CInvoice2__ubl
 		wantErr        bool
 	}{
 		{
-			name: "Test invoice",
+			name: "Test XML to Structure invoice",
 			args: args{
 				xmlData: myXMLData,
 			},
@@ -53,15 +56,22 @@ func TestXMLToStructure(t *testing.T) {
 
 func TestStructureToXML(t *testing.T) {
 	type args struct {
-		xstructure InvoiceStructure
+		xstructure CInvoice2__ubl
 	}
+	var myInvoice CInvoice2__ubl
+
 	tests := []struct {
 		name        string
 		args        args
 		wantXMLData string
 		wantErr     bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Test Structure to XML invoice",
+			args{myInvoice},
+			"",
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
