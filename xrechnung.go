@@ -1,20 +1,19 @@
-//Package xrechnung - Library for processing electronic invoices - german xrechnung **/
+//Package xrechnung - Library for processing electronic invoices - german xrechnung 2.0 **/
 package xrechnung
 
 import (
 	"encoding/xml"
 )
 
-//XMLToStructure liefert aus XML string die Struktur der xrechnung
+//XMLToStructure returns the structure of the xcalculation from XML string
 func XMLToStructure(xmlData string) (xstructure interface{}, err error) {
 	err = xml.Unmarshal([]byte(xmlData), &xstructure)
 	return
 }
 
-//StructureToXML liefert aus Struktur das XML der xrechnung
+//StructureToXML returns the XML of the xcalculation from the structure
 func StructureToXML(xstructure interface{}) (xmlData string, err error) {
-	var myBytesData []byte
-	if myBytesData, err = xml.Marshal(xstructure); err == nil {
+	if myBytesData, err := xml.Marshal(xstructure); err == nil {
 		xmlData = string(myBytesData)
 	}
 	return
