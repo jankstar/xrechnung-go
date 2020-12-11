@@ -9,370 +9,678 @@ import (
 	"encoding/xml"
 )
 
+type TInvoiceTypeCode struct {
+	ID   string
+	Text string
+}
+
+//CInvoiceCypeCode Catalogue of incoming invoice types
+var CInvoiceCypeCode = [8]TInvoiceTypeCode{
+	{"326", "Partial invoice"},
+	{"380", "Commercial invoice"},
+	{"384", "Corrected invoice"},
+	{"389", "Self-billed invoice"},
+	{"381", "Credit note"},
+	{"875", "Partial construction invoice"},
+	{"876", "Partial final construction invoice"},
+	{"877", "Final construction invoice"},
+}
+
+type TCurrencyElement struct {
+	Entity       string
+	CurrencyName string
+	CurrencyID   string
+	CurrencyNum  string
+	MinorUnit    string
+}
+
+//CCurrency the currencies according to DIN ISO 4217 from https://www.iso.org/iso-4217-currency-codes.html
+var CCurrency = [279]TCurrencyElement{
+	{"AFGHANISTAN", "Afghani", "AFN", "971", "2"},
+	{"ÅLAND ISLANDS", "Euro", "EUR", "978", "2"},
+	{"ALBANIA", "Lek", "ALL", "008", "2"},
+	{"ALGERIA", "Algerian Dinar", "DZD", "012", "2"},
+	{"AMERICAN SAMOA", "US Dollar", "USD", "840", "2"},
+	{"ANDORRA", "Euro", "EUR", "978", "2"},
+	{"ANGOLA", "Kwanza", "AOA", "973", "2"},
+	{"ANGUILLA", "East Caribbean Dollar", "XCD", "951", "2"},
+	{"ANTARCTICA", "No universal currency", "", "", ""},
+	{"ANTIGUA AND BARBUDA", "East Caribbean Dollar", "XCD", "951", "2"},
+	{"ARGENTINA", "Argentine Peso", "ARS", "032", "2"},
+	{"ARMENIA", "Armenian Dram", "AMD", "051", "2"},
+	{"ARUBA", "Aruban Florin", "AWG", "533", "2"},
+	{"AUSTRALIA", "Australian Dollar", "AUD", "036", "2"},
+	{"AUSTRIA", "Euro", "EUR", "978", "2"},
+	{"AZERBAIJAN", "Azerbaijan Manat", "AZN", "944", "2"},
+	{"BAHAMAS (THE)", "Bahamian Dollar", "BSD", "044", "2"},
+	{"BAHRAIN", "Bahraini Dinar", "BHD", "048", "3"},
+	{"BANGLADESH", "Taka", "BDT", "050", "2"},
+	{"BARBADOS", "Barbados Dollar", "BBD", "052", "2"},
+	{"BELARUS", "Belarusian Ruble", "BYN", "933", "2"},
+	{"BELGIUM", "Euro", "EUR", "978", "2"},
+	{"BELIZE", "Belize Dollar", "BZD", "084", "2"},
+	{"BENIN", "CFA Franc BCEAO", "XOF", "952", "0"},
+	{"BERMUDA", "Bermudian Dollar", "BMD", "060", "2"},
+	{"BHUTAN", "Indian Rupee", "INR", "356", "2"},
+	{"BHUTAN", "Ngultrum", "BTN", "064", "2"},
+	{"BOLIVIA (PLURINATIONAL STATE OF)", "Boliviano", "BOB", "068", "2"},
+	{"BOLIVIA (PLURINATIONAL STATE OF)", "Mvdol", "BOV", "984", "2"},
+	{"BONAIRE, SINT EUSTATIUS AND SABA", "US Dollar", "USD", "840", "2"},
+	{"BOSNIA AND HERZEGOVINA", "Convertible Mark", "BAM", "977", "2"},
+	{"BOTSWANA", "Pula", "BWP", "072", "2"},
+	{"BOUVET ISLAND", "Norwegian Krone", "NOK", "578", "2"},
+	{"BRAZIL", "Brazilian Real", "BRL", "986", "2"},
+	{"BRITISH INDIAN OCEAN TERRITORY (THE)", "US Dollar", "USD", "840", "2"},
+	{"BRUNEI DARUSSALAM", "Brunei Dollar", "BND", "096", "2"},
+	{"BULGARIA", "Bulgarian Lev", "BGN", "975", "2"},
+	{"BURKINA FASO", "CFA Franc BCEAO", "XOF", "952", "0"},
+	{"BURUNDI", "Burundi Franc", "BIF", "108", "0"},
+	{"CABO VERDE", "Cabo Verde Escudo", "CVE", "132", "2"},
+	{"CAMBODIA", "Riel", "KHR", "116", "2"},
+	{"CAMEROON", "CFA Franc BEAC", "XAF", "950", "0"},
+	{"CANADA", "Canadian Dollar", "CAD", "124", "2"},
+	{"CAYMAN ISLANDS (THE)", "Cayman Islands Dollar", "KYD", "136", "2"},
+	{"CENTRAL AFRICAN REPUBLIC (THE)", "CFA Franc BEAC", "XAF", "950", "0"},
+	{"CHAD", "CFA Franc BEAC", "XAF", "950", "0"},
+	{"CHILE", "Chilean Peso", "CLP", "152", "0"},
+	{"CHILE", "Unidad de Fomento", "CLF", "990", "4"},
+	{"CHINA", "Yuan Renminbi", "CNY", "156", "2"},
+	{"CHRISTMAS ISLAND", "Australian Dollar", "AUD", "036", "2"},
+	{"COCOS (KEELING) ISLANDS (THE)", "Australian Dollar", "AUD", "036", "2"},
+	{"COLOMBIA", "Colombian Peso", "COP", "170", "2"},
+	{"COLOMBIA", "Unidad de Valor Real", "COU", "970", "2"},
+	{"COMOROS (THE)", "Comorian Franc ", "KMF", "174", "0"},
+	{"CONGO (THE DEMOCRATIC REPUBLIC OF THE)", "Congolese Franc", "CDF", "976", "2"},
+	{"CONGO (THE)", "CFA Franc BEAC", "XAF", "950", "0"},
+	{"COOK ISLANDS (THE)", "New Zealand Dollar", "NZD", "554", "2"},
+	{"COSTA RICA", "Costa Rican Colon", "CRC", "188", "2"},
+	{"CÔTE D´IVOIRE", "CFA Franc BCEAO", "XOF", "952", "0"},
+	{"CROATIA", "Kuna", "HRK", "191", "2"},
+	{"CUBA", "Cuban Peso", "CUP", "192", "2"},
+	{"CUBA", "Peso Convertible", "CUC", "931", "2"},
+	{"CURAÇAO", "Netherlands Antillean Guilder", "ANG", "532", "2"},
+	{"CYPRUS", "Euro", "EUR", "978", "2"},
+	{"CZECHIA", "Czech Koruna", "CZK", "203", "2"},
+	{"DENMARK", "Danish Krone", "DKK", "208", "2"},
+	{"DJIBOUTI", "Djibouti Franc", "DJF", "262", "0"},
+	{"DOMINICA", "East Caribbean Dollar", "XCD", "951", "2"},
+	{"DOMINICAN REPUBLIC (THE)", "Dominican Peso", "DOP", "214", "2"},
+	{"ECUADOR", "US Dollar", "USD", "840", "2"},
+	{"EGYPT", "Egyptian Pound", "EGP", "818", "2"},
+	{"EL SALVADOR", "El Salvador Colon", "SVC", "222", "2"},
+	{"EL SALVADOR", "US Dollar", "USD", "840", "2"},
+	{"EQUATORIAL GUINEA", "CFA Franc BEAC", "XAF", "950", "0"},
+	{"ERITREA", "Nakfa", "ERN", "232", "2"},
+	{"ESTONIA", "Euro", "EUR", "978", "2"},
+	{"ESWATINI", "Lilangeni", "SZL", "748", "2"},
+	{"ETHIOPIA", "Ethiopian Birr", "ETB", "230", "2"},
+	{"EUROPEAN UNION", "Euro", "EUR", "978", "2"},
+	{"FALKLAND ISLANDS (THE) [MALVINAS]", "Falkland Islands Pound", "FKP", "238", "2"},
+	{"FAROE ISLANDS (THE)", "Danish Krone", "DKK", "208", "2"},
+	{"FIJI", "Fiji Dollar", "FJD", "242", "2"},
+	{"FINLAND", "Euro", "EUR", "978", "2"},
+	{"FRANCE", "Euro", "EUR", "978", "2"},
+	{"FRENCH GUIANA", "Euro", "EUR", "978", "2"},
+	{"FRENCH POLYNESIA", "CFP Franc", "XPF", "953", "0"},
+	{"FRENCH SOUTHERN TERRITORIES (THE)", "Euro", "EUR", "978", "2"},
+	{"GABON", "CFA Franc BEAC", "XAF", "950", "0"},
+	{"GAMBIA (THE)", "Dalasi", "GMD", "270", "2"},
+	{"GEORGIA", "Lari", "GEL", "981", "2"},
+	{"GERMANY", "Euro", "EUR", "978", "2"},
+	{"GHANA", "Ghana Cedi", "GHS", "936", "2"},
+	{"GIBRALTAR", "Gibraltar Pound", "GIP", "292", "2"},
+	{"GREECE", "Euro", "EUR", "978", "2"},
+	{"GREENLAND", "Danish Krone", "DKK", "208", "2"},
+	{"GRENADA", "East Caribbean Dollar", "XCD", "951", "2"},
+	{"GUADELOUPE", "Euro", "EUR", "978", "2"},
+	{"GUAM", "US Dollar", "USD", "840", "2"},
+	{"GUATEMALA", "Quetzal", "GTQ", "320", "2"},
+	{"GUERNSEY", "Pound Sterling", "GBP", "826", "2"},
+	{"GUINEA", "Guinean Franc", "GNF", "324", "0"},
+	{"GUINEA-BISSAU", "CFA Franc BCEAO", "XOF", "952", "0"},
+	{"GUYANA", "Guyana Dollar", "GYD", "328", "2"},
+	{"HAITI", "Gourde", "HTG", "332", "2"},
+	{"HAITI", "US Dollar", "USD", "840", "2"},
+	{"HEARD ISLAND AND McDONALD ISLANDS", "Australian Dollar", "AUD", "036", "2"},
+	{"HOLY SEE (THE)", "Euro", "EUR", "978", "2"},
+	{"HONDURAS", "Lempira", "HNL", "340", "2"},
+	{"HONG KONG", "Hong Kong Dollar", "HKD", "344", "2"},
+	{"HUNGARY", "Forint", "HUF", "348", "2"},
+	{"ICELAND", "Iceland Krona", "ISK", "352", "0"},
+	{"INDIA", "Indian Rupee", "INR", "356", "2"},
+	{"INDONESIA", "Rupiah", "IDR", "360", "2"},
+	{"INTERNATIONAL MONETARY FUND (IMF) ", "SDR (Special Drawing Right)", "XDR", "960", "N.A."},
+	{"IRAN (ISLAMIC REPUBLIC OF)", "Iranian Rial", "IRR", "364", "2"},
+	{"IRAQ", "Iraqi Dinar", "IQD", "368", "3"},
+	{"IRELAND", "Euro", "EUR", "978", "2"},
+	{"ISLE OF MAN", "Pound Sterling", "GBP", "826", "2"},
+	{"ISRAEL", "New Israeli Sheqel", "ILS", "376", "2"},
+	{"ITALY", "Euro", "EUR", "978", "2"},
+	{"JAMAICA", "Jamaican Dollar", "JMD", "388", "2"},
+	{"JAPAN", "Yen", "JPY", "392", "0"},
+	{"JERSEY", "Pound Sterling", "GBP", "826", "2"},
+	{"JORDAN", "Jordanian Dinar", "JOD", "400", "3"},
+	{"KAZAKHSTAN", "Tenge", "KZT", "398", "2"},
+	{"KENYA", "Kenyan Shilling", "KES", "404", "2"},
+	{"KIRIBATI", "Australian Dollar", "AUD", "036", "2"},
+	{"KOREA (THE DEMOCRATIC PEOPLE’S REPUBLIC OF)", "North Korean Won", "KPW", "408", "2"},
+	{"KOREA (THE REPUBLIC OF)", "Won", "KRW", "410", "0"},
+	{"KUWAIT", "Kuwaiti Dinar", "KWD", "414", "3"},
+	{"KYRGYZSTAN", "Som", "KGS", "417", "2"},
+	{"LAO PEOPLE’S DEMOCRATIC REPUBLIC (THE)", "Lao Kip", "LAK", "418", "2"},
+	{"LATVIA", "Euro", "EUR", "978", "2"},
+	{"LEBANON", "Lebanese Pound", "LBP", "422", "2"},
+	{"LESOTHO", "Loti", "LSL", "426", "2"},
+	{"LESOTHO", "Rand", "ZAR", "710", "2"},
+	{"LIBERIA", "Liberian Dollar", "LRD", "430", "2"},
+	{"LIBYA", "Libyan Dinar", "LYD", "434", "3"},
+	{"LIECHTENSTEIN", "Swiss Franc", "CHF", "756", "2"},
+	{"LITHUANIA", "Euro", "EUR", "978", "2"},
+	{"LUXEMBOURG", "Euro", "EUR", "978", "2"},
+	{"MACAO", "Pataca", "MOP", "446", "2"},
+	{"NORTH MACEDONIA", "Denar", "MKD", "807", "2"},
+	{"MADAGASCAR", "Malagasy Ariary", "MGA", "969", "2"},
+	{"MALAWI", "Malawi Kwacha", "MWK", "454", "2"},
+	{"MALAYSIA", "Malaysian Ringgit", "MYR", "458", "2"},
+	{"MALDIVES", "Rufiyaa", "MVR", "462", "2"},
+	{"MALI", "CFA Franc BCEAO", "XOF", "952", "0"},
+	{"MALTA", "Euro", "EUR", "978", "2"},
+	{"MARSHALL ISLANDS (THE)", "US Dollar", "USD", "840", "2"},
+	{"MARTINIQUE", "Euro", "EUR", "978", "2"},
+	{"MAURITANIA", "Ouguiya", "MRU", "929", "2"},
+	{"MAURITIUS", "Mauritius Rupee", "MUR", "480", "2"},
+	{"MAYOTTE", "Euro", "EUR", "978", "2"},
+	{"MEMBER COUNTRIES OF THE AFRICAN DEVELOPMENT BANK GROUP", "ADB Unit of Account", "XUA", "965", "N.A."},
+	{"MEXICO", "Mexican Peso", "MXN", "484", "2"},
+	{"MEXICO", "Mexican Unidad de Inversion (UDI)", "MXV", "979", "2"},
+	{"MICRONESIA (FEDERATED STATES OF)", "US Dollar", "USD", "840", "2"},
+	{"MOLDOVA (THE REPUBLIC OF)", "Moldovan Leu", "MDL", "498", "2"},
+	{"MONACO", "Euro", "EUR", "978", "2"},
+	{"MONGOLIA", "Tugrik", "MNT", "496", "2"},
+	{"MONTENEGRO", "Euro", "EUR", "978", "2"},
+	{"MONTSERRAT", "East Caribbean Dollar", "XCD", "951", "2"},
+	{"MOROCCO", "Moroccan Dirham", "MAD", "504", "2"},
+	{"MOZAMBIQUE", "Mozambique Metical", "MZN", "943", "2"},
+	{"MYANMAR", "Kyat", "MMK", "104", "2"},
+	{"NAMIBIA", "Namibia Dollar", "NAD", "516", "2"},
+	{"NAMIBIA", "Rand", "ZAR", "710", "2"},
+	{"NAURU", "Australian Dollar", "AUD", "036", "2"},
+	{"NEPAL", "Nepalese Rupee", "NPR", "524", "2"},
+	{"NETHERLANDS (THE)", "Euro", "EUR", "978", "2"},
+	{"NEW CALEDONIA", "CFP Franc", "XPF", "953", "0"},
+	{"NEW ZEALAND", "New Zealand Dollar", "NZD", "554", "2"},
+	{"NICARAGUA", "Cordoba Oro", "NIO", "558", "2"},
+	{"NIGER (THE)", "CFA Franc BCEAO", "XOF", "952", "0"},
+	{"NIGERIA", "Naira", "NGN", "566", "2"},
+	{"NIUE", "New Zealand Dollar", "NZD", "554", "2"},
+	{"NORFOLK ISLAND", "Australian Dollar", "AUD", "036", "2"},
+	{"NORTHERN MARIANA ISLANDS (THE)", "US Dollar", "USD", "840", "2"},
+	{"NORWAY", "Norwegian Krone", "NOK", "578", "2"},
+	{"OMAN", "Rial Omani", "OMR", "512", "3"},
+	{"PAKISTAN", "Pakistan Rupee", "PKR", "586", "2"},
+	{"PALAU", "US Dollar", "USD", "840", "2"},
+	{"PALESTINE, STATE OF", "No universal currency", "", "", ""},
+	{"PANAMA", "Balboa", "PAB", "590", "2"},
+	{"PANAMA", "US Dollar", "USD", "840", "2"},
+	{"PAPUA NEW GUINEA", "Kina", "PGK", "598", "2"},
+	{"PARAGUAY", "Guarani", "PYG", "600", "0"},
+	{"PERU", "Sol", "PEN", "604", "2"},
+	{"PHILIPPINES (THE)", "Philippine Peso", "PHP", "608", "2"},
+	{"PITCAIRN", "New Zealand Dollar", "NZD", "554", "2"},
+	{"POLAND", "Zloty", "PLN", "985", "2"},
+	{"PORTUGAL", "Euro", "EUR", "978", "2"},
+	{"PUERTO RICO", "US Dollar", "USD", "840", "2"},
+	{"QATAR", "Qatari Rial", "QAR", "634", "2"},
+	{"RÉUNION", "Euro", "EUR", "978", "2"},
+	{"ROMANIA", "Romanian Leu", "RON", "946", "2"},
+	{"RUSSIAN FEDERATION (THE)", "Russian Ruble", "RUB", "643", "2"},
+	{"RWANDA", "Rwanda Franc", "RWF", "646", "0"},
+	{"SAINT BARTHÉLEMY", "Euro", "EUR", "978", "2"},
+	{"SAINT HELENA, ASCENSION AND TRISTAN DA CUNHA", "Saint Helena Pound", "SHP", "654", "2"},
+	{"SAINT KITTS AND NEVIS", "East Caribbean Dollar", "XCD", "951", "2"},
+	{"SAINT LUCIA", "East Caribbean Dollar", "XCD", "951", "2"},
+	{"SAINT MARTIN (FRENCH PART)", "Euro", "EUR", "978", "2"},
+	{"SAINT PIERRE AND MIQUELON", "Euro", "EUR", "978", "2"},
+	{"SAINT VINCENT AND THE GRENADINES", "East Caribbean Dollar", "XCD", "951", "2"},
+	{"SAMOA", "Tala", "WST", "882", "2"},
+	{"SAN MARINO", "Euro", "EUR", "978", "2"},
+	{"SAO TOME AND PRINCIPE", "Dobra", "STN", "930", "2"},
+	{"SAUDI ARABIA", "Saudi Riyal", "SAR", "682", "2"},
+	{"SENEGAL", "CFA Franc BCEAO", "XOF", "952", "0"},
+	{"SERBIA", "Serbian Dinar", "RSD", "941", "2"},
+	{"SEYCHELLES", "Seychelles Rupee", "SCR", "690", "2"},
+	{"SIERRA LEONE", "Leone", "SLL", "694", "2"},
+	{"SINGAPORE", "Singapore Dollar", "SGD", "702", "2"},
+	{"SINT MAARTEN (DUTCH PART)", "Netherlands Antillean Guilder", "ANG", "532", "2"},
+	{"SISTEMA UNITARIO DE COMPENSACION REGIONAL DE PAGOS 'SUCRE'", "Sucre", "XSU", "994", "N.A."},
+	{"SLOVAKIA", "Euro", "EUR", "978", "2"},
+	{"SLOVENIA", "Euro", "EUR", "978", "2"},
+	{"SOLOMON ISLANDS", "Solomon Islands Dollar", "SBD", "090", "2"},
+	{"SOMALIA", "Somali Shilling", "SOS", "706", "2"},
+	{"SOUTH AFRICA", "Rand", "ZAR", "710", "2"},
+	{"SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS", "No universal currency", "", "", ""},
+	{"SOUTH SUDAN", "South Sudanese Pound", "SSP", "728", "2"},
+	{"SPAIN", "Euro", "EUR", "978", "2"},
+	{"SRI LANKA", "Sri Lanka Rupee", "LKR", "144", "2"},
+	{"SUDAN (THE)", "Sudanese Pound", "SDG", "938", "2"},
+	{"SURINAME", "Surinam Dollar", "SRD", "968", "2"},
+	{"SVALBARD AND JAN MAYEN", "Norwegian Krone", "NOK", "578", "2"},
+	{"SWEDEN", "Swedish Krona", "SEK", "752", "2"},
+	{"SWITZERLAND", "Swiss Franc", "CHF", "756", "2"},
+	{"SWITZERLAND", "WIR Euro", "CHE", "947", "2"},
+	{"SWITZERLAND", "WIR Franc", "CHW", "948", "2"},
+	{"SYRIAN ARAB REPUBLIC", "Syrian Pound", "SYP", "760", "2"},
+	{"TAIWAN (PROVINCE OF CHINA)", "New Taiwan Dollar", "TWD", "901", "2"},
+	{"TAJIKISTAN", "Somoni", "TJS", "972", "2"},
+	{"TANZANIA, UNITED REPUBLIC OF", "Tanzanian Shilling", "TZS", "834", "2"},
+	{"THAILAND", "Baht", "THB", "764", "2"},
+	{"TIMOR-LESTE", "US Dollar", "USD", "840", "2"},
+	{"TOGO", "CFA Franc BCEAO", "XOF", "952", "0"},
+	{"TOKELAU", "New Zealand Dollar", "NZD", "554", "2"},
+	{"TONGA", "Pa’anga", "TOP", "776", "2"},
+	{"TRINIDAD AND TOBAGO", "Trinidad and Tobago Dollar", "TTD", "780", "2"},
+	{"TUNISIA", "Tunisian Dinar", "TND", "788", "3"},
+	{"TURKEY", "Turkish Lira", "TRY", "949", "2"},
+	{"TURKMENISTAN", "Turkmenistan New Manat", "TMT", "934", "2"},
+	{"TURKS AND CAICOS ISLANDS (THE)", "US Dollar", "USD", "840", "2"},
+	{"TUVALU", "Australian Dollar", "AUD", "036", "2"},
+	{"UGANDA", "Uganda Shilling", "UGX", "800", "0"},
+	{"UKRAINE", "Hryvnia", "UAH", "980", "2"},
+	{"UNITED ARAB EMIRATES (THE)", "UAE Dirham", "AED", "784", "2"},
+	{"UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND (THE)", "Pound Sterling", "GBP", "826", "2"},
+	{"UNITED STATES MINOR OUTLYING ISLANDS (THE)", "US Dollar", "USD", "840", "2"},
+	{"UNITED STATES OF AMERICA (THE)", "US Dollar", "USD", "840", "2"},
+	{"UNITED STATES OF AMERICA (THE)", "US Dollar (Next day)", "USN", "997", "2"},
+	{"URUGUAY", "Peso Uruguayo", "UYU", "858", "2"},
+	{"URUGUAY", "Uruguay Peso en Unidades Indexadas (UI)", "UYI", "940", "0"},
+	{"URUGUAY", "Unidad Previsional", "UYW", "927", "4"},
+	{"UZBEKISTAN", "Uzbekistan Sum", "UZS", "860", "2"},
+	{"VANUATU", "Vatu", "VUV", "548", "0"},
+	{"VENEZUELA (BOLIVARIAN REPUBLIC OF)", "Bolívar Soberano", "VES", "928", "2"},
+	{"VIET NAM", "Dong", "VND", "704", "0"},
+	{"VIRGIN ISLANDS (BRITISH)", "US Dollar", "USD", "840", "2"},
+	{"VIRGIN ISLANDS (U.S.)", "US Dollar", "USD", "840", "2"},
+	{"WALLIS AND FUTUNA", "CFP Franc", "XPF", "953", "0"},
+	{"WESTERN SAHARA", "Moroccan Dirham", "MAD", "504", "2"},
+	{"YEMEN", "Yemeni Rial", "YER", "886", "2"},
+	{"ZAMBIA", "Zambian Kwacha", "ZMW", "967", "2"},
+	{"ZIMBABWE", "Zimbabwe Dollar", "ZWL", "932", "2"},
+	{"ZZ01_Bond Markets Unit European_EURCO", "Bond Markets Unit European Composite Unit (EURCO)", "XBA", "955", "N.A."},
+	{"ZZ02_Bond Markets Unit European_EMU-6", "Bond Markets Unit European Monetary Unit (E.M.U.-6)", "XBB", "956", "N.A."},
+	{"ZZ03_Bond Markets Unit European_EUA-9", "Bond Markets Unit European Unit of Account 9 (E.U.A.-9)", "XBC", "957", "N.A."},
+	{"ZZ04_Bond Markets Unit European_EUA-17", "Bond Markets Unit European Unit of Account 17 (E.U.A.-17)", "XBD", "958", "N.A."},
+	{"ZZ06_Testing_Code", "Codes specifically reserved for testing purposes", "XTS", "963", "N.A."},
+	{"ZZ07_No_Currency", "The codes assigned for transactions where no currency is involved", "XXX", "999", "N.A."},
+	{"ZZ08_Gold", "Gold", "XAU", "959", "N.A."},
+	{"ZZ09_Palladium", "Palladium", "XPD", "964", "N.A."},
+	{"ZZ10_Platinum", "Platinum", "XPT", "962", "N.A."},
+	{"ZZ11_Silver", "Silver", "XAG", "961", "N.A."},
+}
+
 ///////////////////////////
 /// structs
 ///////////////////////////
 
-type CAccountingCustomerParty__cac struct {
-	XMLName     xml.Name    `xml:"AccountingCustomerParty,omitempty" json:"AccountingCustomerParty,omitempty"`
-	CParty__cac CParty__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Party,omitempty" json:"Party,omitempty"`
+type AccountingCustomerParty struct {
+	XMLName xml.Name `xml:"AccountingCustomerParty,omitempty" json:"AccountingCustomerParty,omitempty"`
+	Party   Party    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Party,omitempty" json:"Party,omitempty"`
 }
 
-type CAccountingSupplierParty__cac struct {
-	XMLName     xml.Name    `xml:"AccountingSupplierParty,omitempty" json:"AccountingSupplierParty,omitempty"`
-	CParty__cac CParty__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Party,omitempty" json:"Party,omitempty"`
+type AccountingSupplierParty struct {
+	XMLName xml.Name `xml:"AccountingSupplierParty,omitempty" json:"AccountingSupplierParty,omitempty"`
+	Party   Party    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Party,omitempty" json:"Party,omitempty"`
 }
 
-type CClassifiedTaxCategory__cac struct {
-	XMLName         xml.Name        `xml:"ClassifiedTaxCategory,omitempty" json:"ClassifiedTaxCategory,omitempty"`
-	CID__cbc        CID__cbc        `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
-	CPercent__cbc   CPercent__cbc   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Percent,omitempty" json:"Percent,omitempty"`
-	CTaxScheme__cac CTaxScheme__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxScheme,omitempty" json:"TaxScheme,omitempty"`
+type ClassifiedTaxCategory struct {
+	XMLName   xml.Name  `xml:"ClassifiedTaxCategory,omitempty" json:"ClassifiedTaxCategory,omitempty"`
+	ID        ID        `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+	Percent   Percent   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Percent,omitempty" json:"Percent,omitempty"`
+	TaxScheme TaxScheme `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxScheme,omitempty" json:"TaxScheme,omitempty"`
 }
 
-type CCommodityClassification__cac struct {
-	XMLName                      xml.Name                     `xml:"CommodityClassification,omitempty" json:"CommodityClassification,omitempty"`
-	CItemClassificationCode__cbc CItemClassificationCode__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ItemClassificationCode,omitempty" json:"ItemClassificationCode,omitempty"`
+type CommodityClassification struct {
+	XMLName                xml.Name               `xml:"CommodityClassification,omitempty" json:"CommodityClassification,omitempty"`
+	ItemClassificationCode ItemClassificationCode `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ItemClassificationCode,omitempty" json:"ItemClassificationCode,omitempty"`
 }
 
-type CContact__cac struct {
-	XMLName              xml.Name             `xml:"Contact,omitempty" json:"Contact,omitempty"`
-	CElectronicMail__cbc CElectronicMail__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ElectronicMail,omitempty" json:"ElectronicMail,omitempty"`
-	CName__cbc           CName__cbc           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Name,omitempty" json:"Name,omitempty"`
-	CTelephone__cbc      CTelephone__cbc      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Telephone,omitempty" json:"Telephone,omitempty"`
+type Contact struct {
+	XMLName        xml.Name       `xml:"Contact,omitempty" json:"Contact,omitempty"`
+	ElectronicMail ElectronicMail `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ElectronicMail,omitempty" json:"ElectronicMail,omitempty"`
+	Name           Name           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Name,omitempty" json:"Name,omitempty"`
+	Telephone      Telephone      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Telephone,omitempty" json:"Telephone,omitempty"`
 }
 
-type CCountry__cac struct {
-	XMLName                  xml.Name                 `xml:"Country,omitempty" json:"Country,omitempty"`
-	CIdentificationCode__cbc CIdentificationCode__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 IdentificationCode,omitempty" json:"IdentificationCode,omitempty"`
+type Country struct {
+	XMLName            xml.Name           `xml:"Country,omitempty" json:"Country,omitempty"`
+	IdentificationCode IdentificationCode `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 IdentificationCode,omitempty" json:"IdentificationCode,omitempty"`
 }
 
-type CInvoiceLine__cac struct {
-	XMLName                   xml.Name                  `xml:"InvoiceLine,omitempty" json:"InvoiceLine,omitempty"`
-	CID__cbc                  CID__cbc                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
-	CInvoicePeriod__cac       CInvoicePeriod__cac       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 InvoicePeriod,omitempty" json:"InvoicePeriod,omitempty"`
-	CInvoicedQuantity__cbc    CInvoicedQuantity__cbc    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 InvoicedQuantity,omitempty" json:"InvoicedQuantity,omitempty"`
-	CItem__cac                CItem__cac                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Item,omitempty" json:"Item,omitempty"`
-	CLineExtensionAmount__cbc CLineExtensionAmount__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 LineExtensionAmount,omitempty" json:"LineExtensionAmount,omitempty"`
-	CNote__cbc                CNote__cbc                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
-	COrderLineReference__cac  COrderLineReference__cac  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 OrderLineReference,omitempty" json:"OrderLineReference,omitempty"`
-	CPrice__cac               CPrice__cac               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Price,omitempty" json:"Price,omitempty"`
+type InvoiceLine struct {
+	XMLName             xml.Name            `xml:"InvoiceLine,omitempty" json:"InvoiceLine,omitempty"`
+	ID                  ID                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+	InvoicePeriod       InvoicePeriod       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 InvoicePeriod,omitempty" json:"InvoicePeriod,omitempty"`
+	InvoicedQuantity    InvoicedQuantity    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 InvoicedQuantity,omitempty" json:"InvoicedQuantity,omitempty"`
+	Item                Item                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Item,omitempty" json:"Item,omitempty"`
+	LineExtensionAmount LineExtensionAmount `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 LineExtensionAmount,omitempty" json:"LineExtensionAmount,omitempty"`
+	Note                Note                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
+	OrderLineReference  OrderLineReference  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 OrderLineReference,omitempty" json:"OrderLineReference,omitempty"`
+	Price               Price               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Price,omitempty" json:"Price,omitempty"`
 }
 
-type CInvoicePeriod__cac struct {
-	XMLName         xml.Name        `xml:"InvoicePeriod,omitempty" json:"InvoicePeriod,omitempty"`
-	CEndDate__cbc   CEndDate__cbc   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 EndDate,omitempty" json:"EndDate,omitempty"`
-	CStartDate__cbc CStartDate__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 StartDate,omitempty" json:"StartDate,omitempty"`
+type InvoicePeriod struct {
+	XMLName   xml.Name  `xml:"InvoicePeriod,omitempty" json:"InvoicePeriod,omitempty"`
+	EndDate   EndDate   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 EndDate,omitempty" json:"EndDate,omitempty"`
+	StartDate StartDate `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 StartDate,omitempty" json:"StartDate,omitempty"`
 }
 
-type CItem__cac struct {
-	XMLName                         xml.Name                        `xml:"Item,omitempty" json:"Item,omitempty"`
-	CClassifiedTaxCategory__cac     CClassifiedTaxCategory__cac     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 ClassifiedTaxCategory,omitempty" json:"ClassifiedTaxCategory,omitempty"`
-	CCommodityClassification__cac   CCommodityClassification__cac   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 CommodityClassification,omitempty" json:"CommodityClassification,omitempty"`
-	CDescription__cbc               CDescription__cbc               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Description,omitempty" json:"Description,omitempty"`
-	CName__cbc                      CName__cbc                      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Name,omitempty" json:"Name,omitempty"`
-	CSellersItemIdentification__cac CSellersItemIdentification__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 SellersItemIdentification,omitempty" json:"SellersItemIdentification,omitempty"`
+type Item struct {
+	XMLName                   xml.Name                  `xml:"Item,omitempty" json:"Item,omitempty"`
+	ClassifiedTaxCategory     ClassifiedTaxCategory     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 ClassifiedTaxCategory,omitempty" json:"ClassifiedTaxCategory,omitempty"`
+	CommodityClassification   CommodityClassification   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 CommodityClassification,omitempty" json:"CommodityClassification,omitempty"`
+	Description               Description               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Description,omitempty" json:"Description,omitempty"`
+	Name                      Name                      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Name,omitempty" json:"Name,omitempty"`
+	SellersItemIdentification SellersItemIdentification `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 SellersItemIdentification,omitempty" json:"SellersItemIdentification,omitempty"`
 }
 
-type CLegalMonetaryTotal__cac struct {
-	XMLName                   xml.Name                  `xml:"LegalMonetaryTotal,omitempty" json:"LegalMonetaryTotal,omitempty"`
-	CLineExtensionAmount__cbc CLineExtensionAmount__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 LineExtensionAmount,omitempty" json:"LineExtensionAmount,omitempty"`
-	CPayableAmount__cbc       CPayableAmount__cbc       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PayableAmount,omitempty" json:"PayableAmount,omitempty"`
-	CTaxExclusiveAmount__cbc  CTaxExclusiveAmount__cbc  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxExclusiveAmount,omitempty" json:"TaxExclusiveAmount,omitempty"`
-	CTaxInclusiveAmount__cbc  CTaxInclusiveAmount__cbc  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxInclusiveAmount,omitempty" json:"TaxInclusiveAmount,omitempty"`
+type LegalMonetaryTotal struct {
+	XMLName             xml.Name            `xml:"LegalMonetaryTotal,omitempty" json:"LegalMonetaryTotal,omitempty"`
+	LineExtensionAmount LineExtensionAmount `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 LineExtensionAmount,omitempty" json:"LineExtensionAmount,omitempty"`
+	PayableAmount       PayableAmount       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PayableAmount,omitempty" json:"PayableAmount,omitempty"`
+	TaxExclusiveAmount  TaxExclusiveAmount  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxExclusiveAmount,omitempty" json:"TaxExclusiveAmount,omitempty"`
+	TaxInclusiveAmount  TaxInclusiveAmount  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxInclusiveAmount,omitempty" json:"TaxInclusiveAmount,omitempty"`
 }
 
-type COrderLineReference__cac struct {
-	XMLName      xml.Name     `xml:"OrderLineReference,omitempty" json:"OrderLineReference,omitempty"`
-	CLineID__cbc CLineID__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 LineID,omitempty" json:"LineID,omitempty"`
+type OrderLineReference struct {
+	XMLName xml.Name `xml:"OrderLineReference,omitempty" json:"OrderLineReference,omitempty"`
+	LineID  LineID   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 LineID,omitempty" json:"LineID,omitempty"`
 }
 
-type CParty__cac struct {
-	XMLName                   xml.Name                  `xml:"Party,omitempty" json:"Party,omitempty"`
-	CContact__cac             CContact__cac             `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Contact,omitempty" json:"Contact,omitempty"`
-	CPartyIdentification__cac CPartyIdentification__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyIdentification,omitempty" json:"PartyIdentification,omitempty"`
-	CPartyLegalEntity__cac    CPartyLegalEntity__cac    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyLegalEntity,omitempty" json:"PartyLegalEntity,omitempty"`
-	CPartyName__cac           CPartyName__cac           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyName,omitempty" json:"PartyName,omitempty"`
-	CPartyTaxScheme__cac      CPartyTaxScheme__cac      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyTaxScheme,omitempty" json:"PartyTaxScheme,omitempty"`
-	CPostalAddress__cac       CPostalAddress__cac       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PostalAddress,omitempty" json:"PostalAddress,omitempty"`
+type Party struct {
+	XMLName             xml.Name            `xml:"Party,omitempty" json:"Party,omitempty"`
+	Contact             Contact             `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Contact,omitempty" json:"Contact,omitempty"`
+	PartyIdentification PartyIdentification `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyIdentification,omitempty" json:"PartyIdentification,omitempty"`
+	PartyLegalEntity    PartyLegalEntity    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyLegalEntity,omitempty" json:"PartyLegalEntity,omitempty"`
+	PartyName           PartyName           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyName,omitempty" json:"PartyName,omitempty"`
+	PartyTaxScheme      PartyTaxScheme      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyTaxScheme,omitempty" json:"PartyTaxScheme,omitempty"`
+	PostalAddress       PostalAddress       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PostalAddress,omitempty" json:"PostalAddress,omitempty"`
 }
 
-type CPartyIdentification__cac struct {
-	XMLName  xml.Name `xml:"PartyIdentification,omitempty" json:"PartyIdentification,omitempty"`
-	CID__cbc CID__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+type PartyIdentification struct {
+	XMLName xml.Name `xml:"PartyIdentification,omitempty" json:"PartyIdentification,omitempty"`
+	ID      ID       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
 }
 
-type CPartyLegalEntity__cac struct {
-	XMLName                xml.Name               `xml:"PartyLegalEntity,omitempty" json:"PartyLegalEntity,omitempty"`
-	CCompanyID__cbc        CCompanyID__cbc        `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CompanyID,omitempty" json:"CompanyID,omitempty"`
-	CCompanyLegalForm__cbc CCompanyLegalForm__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CompanyLegalForm,omitempty" json:"CompanyLegalForm,omitempty"`
-	CRegistrationName__cbc CRegistrationName__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 RegistrationName,omitempty" json:"RegistrationName,omitempty"`
+type PartyLegalEntity struct {
+	XMLName          xml.Name         `xml:"PartyLegalEntity,omitempty" json:"PartyLegalEntity,omitempty"`
+	CompanyID        CompanyID        `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CompanyID,omitempty" json:"CompanyID,omitempty"`
+	CompanyLegalForm CompanyLegalForm `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CompanyLegalForm,omitempty" json:"CompanyLegalForm,omitempty"`
+	RegistrationName RegistrationName `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 RegistrationName,omitempty" json:"RegistrationName,omitempty"`
 }
 
-type CPartyName__cac struct {
-	XMLName    xml.Name   `xml:"PartyName,omitempty" json:"PartyName,omitempty"`
-	CName__cbc CName__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Name,omitempty" json:"Name,omitempty"`
+type PartyName struct {
+	XMLName xml.Name `xml:"PartyName,omitempty" json:"PartyName,omitempty"`
+	Name    Name     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Name,omitempty" json:"Name,omitempty"`
 }
 
-type CPartyTaxScheme__cac struct {
-	XMLName         xml.Name        `xml:"PartyTaxScheme,omitempty" json:"PartyTaxScheme,omitempty"`
-	CCompanyID__cbc CCompanyID__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CompanyID,omitempty" json:"CompanyID,omitempty"`
-	CTaxScheme__cac CTaxScheme__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxScheme,omitempty" json:"TaxScheme,omitempty"`
+type PartyTaxScheme struct {
+	XMLName   xml.Name  `xml:"PartyTaxScheme,omitempty" json:"PartyTaxScheme,omitempty"`
+	CompanyID CompanyID `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CompanyID,omitempty" json:"CompanyID,omitempty"`
+	TaxScheme TaxScheme `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxScheme,omitempty" json:"TaxScheme,omitempty"`
 }
 
-type CPayeeFinancialAccount__cac struct {
-	XMLName  xml.Name `xml:"PayeeFinancialAccount,omitempty" json:"PayeeFinancialAccount,omitempty"`
-	CID__cbc CID__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+type PayeeFinancialAccount struct {
+	XMLName xml.Name `xml:"PayeeFinancialAccount,omitempty" json:"PayeeFinancialAccount,omitempty"`
+	ID      ID       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
 }
 
-type CPaymentMeans__cac struct {
-	XMLName                     xml.Name                    `xml:"PaymentMeans,omitempty" json:"PaymentMeans,omitempty"`
-	CPayeeFinancialAccount__cac CPayeeFinancialAccount__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PayeeFinancialAccount,omitempty" json:"PayeeFinancialAccount,omitempty"`
-	CPaymentMeansCode__cbc      CPaymentMeansCode__cbc      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PaymentMeansCode,omitempty" json:"PaymentMeansCode,omitempty"`
+type PaymentMeans struct {
+	XMLName               xml.Name              `xml:"PaymentMeans,omitempty" json:"PaymentMeans,omitempty"`
+	PayeeFinancialAccount PayeeFinancialAccount `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PayeeFinancialAccount,omitempty" json:"PayeeFinancialAccount,omitempty"`
+	PaymentMeansCode      PaymentMeansCode      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PaymentMeansCode,omitempty" json:"PaymentMeansCode,omitempty"`
 }
 
-type CPaymentTerms__cac struct {
-	XMLName    xml.Name    `xml:"PaymentTerms,omitempty" json:"PaymentTerms,omitempty"`
-	CNote__cbc *CNote__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
+type PaymentTerms struct {
+	XMLName xml.Name `xml:"PaymentTerms,omitempty" json:"PaymentTerms,omitempty"`
+	Note    *Note    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
 }
 
-type CPostalAddress__cac struct {
-	XMLName          xml.Name         `xml:"PostalAddress,omitempty" json:"PostalAddress,omitempty"`
-	CCityName__cbc   CCityName__cbc   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CityName,omitempty" json:"CityName,omitempty"`
-	CCountry__cac    CCountry__cac    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Country,omitempty" json:"Country,omitempty"`
-	CPostalZone__cbc CPostalZone__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PostalZone,omitempty" json:"PostalZone,omitempty"`
-	CStreetName__cbc CStreetName__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 StreetName,omitempty" json:"StreetName,omitempty"`
+type PostalAddress struct {
+	XMLName    xml.Name   `xml:"PostalAddress,omitempty" json:"PostalAddress,omitempty"`
+	CityName   CityName   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CityName,omitempty" json:"CityName,omitempty"`
+	Country    Country    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Country,omitempty" json:"Country,omitempty"`
+	PostalZone PostalZone `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PostalZone,omitempty" json:"PostalZone,omitempty"`
+	StreetName StreetName `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 StreetName,omitempty" json:"StreetName,omitempty"`
 }
 
-type CPrice__cac struct {
-	XMLName           xml.Name          `xml:"Price,omitempty" json:"Price,omitempty"`
-	CPriceAmount__cbc CPriceAmount__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PriceAmount,omitempty" json:"PriceAmount,omitempty"`
+type Price struct {
+	XMLName     xml.Name    `xml:"Price,omitempty" json:"Price,omitempty"`
+	PriceAmount PriceAmount `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PriceAmount,omitempty" json:"PriceAmount,omitempty"`
 }
 
-type CSellersItemIdentification__cac struct {
-	XMLName  xml.Name `xml:"SellersItemIdentification,omitempty" json:"SellersItemIdentification,omitempty"`
-	CID__cbc CID__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+type SellersItemIdentification struct {
+	XMLName xml.Name `xml:"SellersItemIdentification,omitempty" json:"SellersItemIdentification,omitempty"`
+	ID      ID       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
 }
 
-type CTaxCategory__cac struct {
-	XMLName         xml.Name        `xml:"TaxCategory,omitempty" json:"TaxCategory,omitempty"`
-	CID__cbc        CID__cbc        `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
-	CPercent__cbc   CPercent__cbc   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Percent,omitempty" json:"Percent,omitempty"`
-	CTaxScheme__cac CTaxScheme__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxScheme,omitempty" json:"TaxScheme,omitempty"`
+type TaxCategory struct {
+	XMLName   xml.Name  `xml:"TaxCategory,omitempty" json:"TaxCategory,omitempty"`
+	ID        ID        `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+	Percent   Percent   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Percent,omitempty" json:"Percent,omitempty"`
+	TaxScheme TaxScheme `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxScheme,omitempty" json:"TaxScheme,omitempty"`
 }
 
-type CTaxScheme__cac struct {
-	XMLName  xml.Name `xml:"TaxScheme,omitempty" json:"TaxScheme,omitempty"`
-	CID__cbc CID__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+type TaxScheme struct {
+	XMLName xml.Name `xml:"TaxScheme,omitempty" json:"TaxScheme,omitempty"`
+	ID      ID       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
 }
 
-type CTaxSubtotal__cac struct {
-	XMLName             xml.Name            `xml:"TaxSubtotal,omitempty" json:"TaxSubtotal,omitempty"`
-	CTaxAmount__cbc     CTaxAmount__cbc     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxAmount,omitempty" json:"TaxAmount,omitempty"`
-	CTaxCategory__cac   CTaxCategory__cac   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxCategory,omitempty" json:"TaxCategory,omitempty"`
-	CTaxableAmount__cbc CTaxableAmount__cbc `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxableAmount,omitempty" json:"TaxableAmount,omitempty"`
+type TaxSubtotal struct {
+	XMLName       xml.Name      `xml:"TaxSubtotal,omitempty" json:"TaxSubtotal,omitempty"`
+	TaxAmount     TaxAmount     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxAmount,omitempty" json:"TaxAmount,omitempty"`
+	TaxCategory   TaxCategory   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxCategory,omitempty" json:"TaxCategory,omitempty"`
+	TaxableAmount TaxableAmount `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxableAmount,omitempty" json:"TaxableAmount,omitempty"`
 }
 
-type CTaxTotal__cac struct {
-	XMLName           xml.Name          `xml:"TaxTotal,omitempty" json:"TaxTotal,omitempty"`
-	CTaxAmount__cbc   CTaxAmount__cbc   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxAmount,omitempty" json:"TaxAmount,omitempty"`
-	CTaxSubtotal__cac CTaxSubtotal__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxSubtotal,omitempty" json:"TaxSubtotal,omitempty"`
+type TaxTotal struct {
+	XMLName     xml.Name    `xml:"TaxTotal,omitempty" json:"TaxTotal,omitempty"`
+	TaxAmount   TaxAmount   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxAmount,omitempty" json:"TaxAmount,omitempty"`
+	TaxSubtotal TaxSubtotal `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxSubtotal,omitempty" json:"TaxSubtotal,omitempty"`
 }
 
-type CBuyerReference__cbc struct {
+type BuyerReference struct {
 	XMLName        xml.Name `xml:"BuyerReference,omitempty" json:"BuyerReference,omitempty"`
 	BuyerReference string   `xml:",chardata" json:",omitempty"`
 }
 
-type CCityName__cbc struct {
+type CityName struct {
 	XMLName  xml.Name `xml:"CityName,omitempty" json:"CityName,omitempty"`
 	CityName string   `xml:",chardata" json:",omitempty"`
 }
 
-type CCompanyID__cbc struct {
+type CompanyID struct {
 	XMLName   xml.Name `xml:"CompanyID,omitempty" json:"CompanyID,omitempty"`
 	CompanyID string   `xml:",chardata" json:",omitempty"`
 }
 
-type CCompanyLegalForm__cbc struct {
+type CompanyLegalForm struct {
 	XMLName          xml.Name `xml:"CompanyLegalForm,omitempty" json:"CompanyLegalForm,omitempty"`
 	CompanyLegalForm string   `xml:",chardata" json:",omitempty"`
 }
 
-type CCustomizationID__cbc struct {
+type CustomizationID struct {
 	XMLName         xml.Name `xml:"CustomizationID,omitempty" json:"CustomizationID,omitempty"`
 	CustomizationID string   `xml:",chardata" json:",omitempty"`
 }
 
-type CDescription__cbc struct {
+type Description struct {
 	XMLName     xml.Name `xml:"Description,omitempty" json:"Description,omitempty"`
 	Description string   `xml:",chardata" json:",omitempty"`
 }
 
-type CDocumentCurrencyCode__cbc struct {
+type DocumentCurrencyCode struct {
 	XMLName              xml.Name `xml:"DocumentCurrencyCode,omitempty" json:"DocumentCurrencyCode,omitempty"`
 	DocumentCurrencyCode string   `xml:",chardata" json:",omitempty"`
 }
 
-type CElectronicMail__cbc struct {
+type ElectronicMail struct {
 	XMLName        xml.Name `xml:"ElectronicMail,omitempty" json:"ElectronicMail,omitempty"`
 	ElectronicMail string   `xml:",chardata" json:",omitempty"`
 }
 
-type CEndDate__cbc struct {
+type EndDate struct {
 	XMLName xml.Name `xml:"EndDate,omitempty" json:"EndDate,omitempty"`
 	EndDate string   `xml:",chardata" json:",omitempty"`
 }
 
-type CID__cbc struct {
+type ID struct {
 	XMLName xml.Name `xml:"ID,omitempty" json:"ID,omitempty"`
 	ID      string   `xml:",chardata" json:",omitempty"`
 }
 
-type CIdentificationCode__cbc struct {
+type IdentificationCode struct {
 	XMLName            xml.Name `xml:"IdentificationCode,omitempty" json:"IdentificationCode,omitempty"`
 	IdentificationCode string   `xml:",chardata" json:",omitempty"`
 }
 
-type CInvoiceTypeCode__cbc struct {
+type InvoiceTypeCode struct {
 	XMLName         xml.Name `xml:"InvoiceTypeCode,omitempty" json:"InvoiceTypeCode,omitempty"`
 	InvoiceTypeCode string   `xml:",chardata" json:",omitempty"`
 }
 
-type CInvoicedQuantity__cbc struct {
+type InvoicedQuantity struct {
 	XMLName          xml.Name `xml:"InvoicedQuantity,omitempty" json:"InvoicedQuantity,omitempty"`
 	AttrunitCode     string   `xml:"unitCode,attr"  json:",omitempty"`
 	InvoicedQuantity string   `xml:",chardata" json:",omitempty"`
 }
 
-type CIssueDate__cbc struct {
+type IssueDate struct {
 	XMLName   xml.Name `xml:"IssueDate,omitempty" json:"IssueDate,omitempty"`
 	IssueDate string   `xml:",chardata" json:",omitempty"`
 }
 
-type CItemClassificationCode__cbc struct {
+type ItemClassificationCode struct {
 	XMLName                xml.Name `xml:"ItemClassificationCode,omitempty" json:"ItemClassificationCode,omitempty"`
 	AttrlistID             string   `xml:"listID,attr"  json:",omitempty"`
 	ItemClassificationCode string   `xml:",chardata" json:",omitempty"`
 }
 
-type CLineExtensionAmount__cbc struct {
+type LineExtensionAmount struct {
 	XMLName             xml.Name `xml:"LineExtensionAmount,omitempty" json:"LineExtensionAmount,omitempty"`
 	AttrcurrencyID      string   `xml:"currencyID,attr"  json:",omitempty"`
 	LineExtensionAmount string   `xml:",chardata" json:",omitempty"`
 }
 
-type CLineID__cbc struct {
+type LineID struct {
 	XMLName xml.Name `xml:"LineID,omitempty" json:"LineID,omitempty"`
 	LineID  string   `xml:",chardata" json:",omitempty"`
 }
 
-type CName__cbc struct {
+type Name struct {
 	XMLName xml.Name `xml:"Name,omitempty" json:"Name,omitempty"`
 	Name    string   `xml:",chardata" json:",omitempty"`
 }
 
-type CNote__cbc struct {
+type Note struct {
 	XMLName xml.Name `xml:"Note,omitempty" json:"Note,omitempty"`
 	Note    string   `xml:",chardata" json:",omitempty"`
 }
 
-type CPayableAmount__cbc struct {
+type PayableAmount struct {
 	XMLName        xml.Name `xml:"PayableAmount,omitempty" json:"PayableAmount,omitempty"`
 	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
 	PayableAmount  string   `xml:",chardata" json:",omitempty"`
 }
 
-type CPaymentMeansCode__cbc struct {
+type PaymentMeansCode struct {
 	XMLName          xml.Name `xml:"PaymentMeansCode,omitempty" json:"PaymentMeansCode,omitempty"`
 	PaymentMeansCode string   `xml:",chardata" json:",omitempty"`
 }
 
-type CPercent__cbc struct {
+type Percent struct {
 	XMLName xml.Name `xml:"Percent,omitempty" json:"Percent,omitempty"`
 	Percent string   `xml:",chardata" json:",omitempty"`
 }
 
-type CPostalZone__cbc struct {
+type PostalZone struct {
 	XMLName    xml.Name `xml:"PostalZone,omitempty" json:"PostalZone,omitempty"`
 	PostalZone string   `xml:",chardata" json:",omitempty"`
 }
 
-type CPriceAmount__cbc struct {
+type PriceAmount struct {
 	XMLName        xml.Name `xml:"PriceAmount,omitempty" json:"PriceAmount,omitempty"`
 	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
 	PriceAmount    string   `xml:",chardata" json:",omitempty"`
 }
 
-type CRegistrationName__cbc struct {
+type RegistrationName struct {
 	XMLName          xml.Name `xml:"RegistrationName,omitempty" json:"RegistrationName,omitempty"`
 	RegistrationName string   `xml:",chardata" json:",omitempty"`
 }
 
-type CStartDate__cbc struct {
+type StartDate struct {
 	XMLName   xml.Name `xml:"StartDate,omitempty" json:"StartDate,omitempty"`
 	StartDate string   `xml:",chardata" json:",omitempty"`
 }
 
-type CStreetName__cbc struct {
+type StreetName struct {
 	XMLName    xml.Name `xml:"StreetName,omitempty" json:"StreetName,omitempty"`
 	StreetName string   `xml:",chardata" json:",omitempty"`
 }
 
-type CTaxAmount__cbc struct {
+type TaxAmount struct {
 	XMLName        xml.Name `xml:"TaxAmount,omitempty" json:"TaxAmount,omitempty"`
 	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
 	TaxAmount      string   `xml:",chardata" json:",omitempty"`
 }
 
-type CTaxCurrencyCode__cbc struct {
+type TaxCurrencyCode struct {
 	XMLName         xml.Name `xml:"TaxCurrencyCode,omitempty" json:"TaxCurrencyCode,omitempty"`
 	TaxCurrencyCode string   `xml:",chardata" json:",omitempty"`
 }
 
-type CTaxExclusiveAmount__cbc struct {
+type TaxExclusiveAmount struct {
 	XMLName            xml.Name `xml:"TaxExclusiveAmount,omitempty" json:"TaxExclusiveAmount,omitempty"`
 	AttrcurrencyID     string   `xml:"currencyID,attr"  json:",omitempty"`
 	TaxExclusiveAmount string   `xml:",chardata" json:",omitempty"`
 }
 
-type CTaxInclusiveAmount__cbc struct {
+type TaxInclusiveAmount struct {
 	XMLName            xml.Name `xml:"TaxInclusiveAmount,omitempty" json:"TaxInclusiveAmount,omitempty"`
 	AttrcurrencyID     string   `xml:"currencyID,attr"  json:",omitempty"`
 	TaxInclusiveAmount string   `xml:",chardata" json:",omitempty"`
 }
 
-type CTaxableAmount__cbc struct {
+type TaxableAmount struct {
 	XMLName        xml.Name `xml:"TaxableAmount,omitempty" json:"TaxableAmount,omitempty"`
 	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
 	TaxableAmount  string   `xml:",chardata" json:",omitempty"`
 }
 
-type CTelephone__cbc struct {
+type Telephone struct {
 	XMLName   xml.Name `xml:"Telephone,omitempty" json:"Telephone,omitempty"`
 	Telephone string   `xml:",chardata" json:",omitempty"`
 }
 
 type CInvoice2__ubl struct {
-	XMLName                       xml.Name                      `xml:"Invoice,omitempty" json:"Invoice,omitempty"`
-	AttrXmlnscac                  string                        `xml:"xmlns cac,attr"  json:",omitempty"`
-	AttrXmlnscbc                  string                        `xml:"xmlns cbc,attr"  json:",omitempty"`
-	AttrXmlnsubl                  string                        `xml:"xmlns ubl,attr"  json:",omitempty"`
-	CAccountingCustomerParty__cac CAccountingCustomerParty__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AccountingCustomerParty,omitempty" json:"AccountingCustomerParty,omitempty"`
-	CAccountingSupplierParty__cac CAccountingSupplierParty__cac `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AccountingSupplierParty,omitempty" json:"AccountingSupplierParty,omitempty"`
-	CBuyerReference__cbc          CBuyerReference__cbc          `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 BuyerReference,omitempty" json:"BuyerReference,omitempty"`
-	CCustomizationID__cbc         CCustomizationID__cbc         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CustomizationID,omitempty" json:"CustomizationID,omitempty"`
-	CDocumentCurrencyCode__cbc    CDocumentCurrencyCode__cbc    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 DocumentCurrencyCode,omitempty" json:"DocumentCurrencyCode,omitempty"`
-	CID__cbc                      CID__cbc                      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
-	CInvoiceLine__cac             []CInvoiceLine__cac           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 InvoiceLine,omitempty" json:"InvoiceLine,omitempty"`
-	CInvoiceTypeCode__cbc         CInvoiceTypeCode__cbc         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 InvoiceTypeCode,omitempty" json:"InvoiceTypeCode,omitempty"`
-	CIssueDate__cbc               CIssueDate__cbc               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 IssueDate,omitempty" json:"IssueDate,omitempty"`
-	CLegalMonetaryTotal__cac      CLegalMonetaryTotal__cac      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 LegalMonetaryTotal,omitempty" json:"LegalMonetaryTotal,omitempty"`
-	CNote__cbc                    CNote__cbc                    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
-	CPaymentMeans__cac            CPaymentMeans__cac            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentMeans,omitempty" json:"PaymentMeans,omitempty"`
-	CPaymentTerms__cac            CPaymentTerms__cac            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentTerms,omitempty" json:"PaymentTerms,omitempty"`
-	CTaxCurrencyCode__cbc         CTaxCurrencyCode__cbc         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxCurrencyCode,omitempty" json:"TaxCurrencyCode,omitempty"`
-	CTaxTotal__cac                CTaxTotal__cac                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxTotal,omitempty" json:"TaxTotal,omitempty"`
+	XMLName                 xml.Name                `xml:"Invoice,omitempty" json:"Invoice,omitempty"`
+	AttrXmlnscac            string                  `xml:"xmlns cac,attr"  json:",omitempty"`
+	AttrXmlnscbc            string                  `xml:"xmlns cbc,attr"  json:",omitempty"`
+	AttrXmlnsubl            string                  `xml:"xmlns ubl,attr"  json:",omitempty"`
+	AccountingCustomerParty AccountingCustomerParty `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AccountingCustomerParty,omitempty" json:"AccountingCustomerParty,omitempty"`
+	AccountingSupplierParty AccountingSupplierParty `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AccountingSupplierParty,omitempty" json:"AccountingSupplierParty,omitempty"`
+	BuyerReference          BuyerReference          `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 BuyerReference,omitempty" json:"BuyerReference,omitempty"`
+	CustomizationID         CustomizationID         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CustomizationID,omitempty" json:"CustomizationID,omitempty"`
+	DocumentCurrencyCode    DocumentCurrencyCode    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 DocumentCurrencyCode,omitempty" json:"DocumentCurrencyCode,omitempty"`
+	ID                      ID                      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+	InvoiceLine             []InvoiceLine           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 InvoiceLine,omitempty" json:"InvoiceLine,omitempty"`
+	InvoiceTypeCode         InvoiceTypeCode         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 InvoiceTypeCode,omitempty" json:"InvoiceTypeCode,omitempty"`
+	IssueDate               IssueDate               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 IssueDate,omitempty" json:"IssueDate,omitempty"`
+	LegalMonetaryTotal      LegalMonetaryTotal      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 LegalMonetaryTotal,omitempty" json:"LegalMonetaryTotal,omitempty"`
+	Note                    Note                    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
+	PaymentMeans            PaymentMeans            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentMeans,omitempty" json:"PaymentMeans,omitempty"`
+	PaymentTerms            PaymentTerms            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentTerms,omitempty" json:"PaymentTerms,omitempty"`
+	TaxCurrencyCode         TaxCurrencyCode         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxCurrencyCode,omitempty" json:"TaxCurrencyCode,omitempty"`
+	TaxTotal                TaxTotal                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxTotal,omitempty" json:"TaxTotal,omitempty"`
 }
 
 ///////////////////////////
