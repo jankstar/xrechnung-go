@@ -2,6 +2,7 @@
 package xrechnung
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -181,6 +182,20 @@ func XMLToStructure(xmlData string) (xInvoice Invoice2, err error) {
 func StructureToXML(xInvoice Invoice2) (xmlData string, err error) {
 	if myBytesData, err := xml.Marshal(xInvoice); err == nil {
 		xmlData = string(myBytesData)
+	}
+	return
+}
+
+//JsonToStructure returns the structure of the xcalculation from Json string
+func JsonToStructure(jsonData string) (xInvoice Invoice2, err error) {
+	err = json.Unmarshal([]byte(jsonData), &xInvoice)
+	return
+}
+
+//StructureToJson returns the Json of the xcalculation from the structure
+func StructureToJson(xInvoice Invoice2) (jsonData string, err error) {
+	if myBytesData, err := json.Marshal(xInvoice); err == nil {
+		jsonData = string(myBytesData)
 	}
 	return
 }
