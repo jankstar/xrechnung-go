@@ -9,13 +9,13 @@ import (
 	"encoding/xml"
 )
 
-type TInvoiceTypeCode struct {
+type TCode struct {
 	ID   string
 	Text string
 }
 
 //CInvoiceCypeCode Catalogue of incoming invoice types
-var CInvoiceCypeCode = [8]TInvoiceTypeCode{
+var CInvoiceCypeCode = [8]TCode{
 	{"326", "Partial invoice"},
 	{"380", "Commercial invoice"},
 	{"384", "Corrected invoice"},
@@ -24,6 +24,12 @@ var CInvoiceCypeCode = [8]TInvoiceTypeCode{
 	{"875", "Partial construction invoice"},
 	{"876", "Partial final construction invoice"},
 	{"877", "Final construction invoice"},
+}
+
+var CValueAddedTaxPointDateCode = [3]TCode{
+	{"3", "Invoice document issue date time"},
+	{"35", "Delivery date/time, actual"},
+	{"432", "Paid to date"},
 }
 
 type TCurrencyElement struct {
@@ -347,6 +353,7 @@ type Contact struct {
 	XMLName        xml.Name       `xml:"Contact,omitempty" json:"Contact,omitempty"`
 	ElectronicMail ElectronicMail `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ElectronicMail,omitempty" json:"ElectronicMail,omitempty"`
 	Name           Name           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Name,omitempty" json:"Name,omitempty"`
+	Telefax        Telefax        `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Telefax,omitempty" json:"Telefax,omitempty"`
 	Telephone      Telephone      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Telephone,omitempty" json:"Telephone,omitempty"`
 }
 
@@ -398,11 +405,48 @@ type OrderLineReference struct {
 type Party struct {
 	XMLName             xml.Name            `xml:"Party,omitempty" json:"Party,omitempty"`
 	Contact             Contact             `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Contact,omitempty" json:"Contact,omitempty"`
+	EndpointID          EndpointID          `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 EndpointID,omitempty" json:"EndpointID,omitempty"`
 	PartyIdentification PartyIdentification `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyIdentification,omitempty" json:"PartyIdentification,omitempty"`
 	PartyLegalEntity    PartyLegalEntity    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyLegalEntity,omitempty" json:"PartyLegalEntity,omitempty"`
 	PartyName           PartyName           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyName,omitempty" json:"PartyName,omitempty"`
 	PartyTaxScheme      PartyTaxScheme      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyTaxScheme,omitempty" json:"PartyTaxScheme,omitempty"`
+	Person              Person              `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Person,omitempty" json:"Person,omitempty"`
 	PostalAddress       PostalAddress       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PostalAddress,omitempty" json:"PostalAddress,omitempty"`
+}
+
+type EndpointID struct {
+	XMLName            xml.Name `xml:"EndpointID,omitempty" json:"EndpointID,omitempty"`
+	AttrschemeAgencyID string   `xml:"schemeAgencyID,attr"  json:",omitempty"`
+	AttrschemeID       string   `xml:"schemeID,attr"  json:",omitempty"`
+	Value              string   `xml:",chardata" json:",omitempty"`
+}
+
+type Person struct {
+	XMLName    xml.Name   `xml:"Person,omitempty" json:"Person,omitempty"`
+	FamilyName FamilyName `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 FamilyName,omitempty" json:"FamilyName,omitempty"`
+	FirstName  FirstName  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 FirstName,omitempty" json:"FirstName,omitempty"`
+	JobTitle   JobTitle   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 JobTitle,omitempty" json:"JobTitle,omitempty"`
+	MiddleName MiddleName `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 MiddleName,omitempty" json:"MiddleName,omitempty"`
+}
+
+type FirstName struct {
+	XMLName xml.Name `xml:"FirstName,omitempty" json:"FirstName,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type FamilyName struct {
+	XMLName xml.Name `xml:"FamilyName,omitempty" json:"FamilyName,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type MiddleName struct {
+	XMLName xml.Name `xml:"MiddleName,omitempty" json:"MiddleName,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type JobTitle struct {
+	XMLName xml.Name `xml:"JobTitle,omitempty" json:"JobTitle,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type PartyIdentification struct {
@@ -444,12 +488,34 @@ type PaymentTerms struct {
 	Note    *Note    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
 }
 
+type CountrySubentity struct {
+	XMLName xml.Name `xml:"CountrySubentity,omitempty" json:"CountrySubentity,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type Department struct {
+	XMLName xml.Name `xml:"Department,omitempty" json:"Department,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
 type PostalAddress struct {
-	XMLName    xml.Name   `xml:"PostalAddress,omitempty" json:"PostalAddress,omitempty"`
-	CityName   CityName   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CityName,omitempty" json:"CityName,omitempty"`
-	Country    Country    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Country,omitempty" json:"Country,omitempty"`
-	PostalZone PostalZone `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PostalZone,omitempty" json:"PostalZone,omitempty"`
-	StreetName StreetName `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 StreetName,omitempty" json:"StreetName,omitempty"`
+	XMLName              xml.Name             `xml:"PostalAddress,omitempty" json:"PostalAddress,omitempty"`
+	AdditionalStreetName AdditionalStreetName `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 AdditionalStreetName,omitempty" json:"AdditionalStreetName,omitempty"`
+	BuildingNumber       BuildingNumber       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 BuildingNumber,omitempty" json:"BuildingNumber,omitempty"`
+	CityName             CityName             `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CityName,omitempty" json:"CityName,omitempty"`
+	CountrySubentityCode CountrySubentityCode `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CountrySubentityCode,omitempty" json:"CountrySubentityCode,omitempty"`
+	CountrySubentity     CountrySubentity     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CountrySubentity,omitempty" json:"CountrySubentity,omitempty"`
+	Country              Country              `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Country,omitempty" json:"Country,omitempty"`
+	Department           Department           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Department,omitempty" json:"Department,omitempty"`
+	ID                   ID                   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+	PostalZone           PostalZone           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PostalZone,omitempty" json:"PostalZone,omitempty"`
+	Postbox              Postbox              `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Postbox,omitempty" json:"Postbox,omitempty"`
+	StreetName           StreetName           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 StreetName,omitempty" json:"StreetName,omitempty"`
+}
+
+type Postbox struct {
+	XMLName xml.Name `xml:"Postbox,omitempty" json:"Postbox,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type Price struct {
@@ -488,199 +554,361 @@ type TaxTotal struct {
 }
 
 type BuyerReference struct {
-	XMLName        xml.Name `xml:"BuyerReference,omitempty" json:"BuyerReference,omitempty"`
-	BuyerReference string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"BuyerReference,omitempty" json:"BuyerReference,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type CityName struct {
-	XMLName  xml.Name `xml:"CityName,omitempty" json:"CityName,omitempty"`
-	CityName string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"CityName,omitempty" json:"CityName,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type CompanyID struct {
-	XMLName   xml.Name `xml:"CompanyID,omitempty" json:"CompanyID,omitempty"`
-	CompanyID string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"CompanyID,omitempty" json:"CompanyID,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type CompanyLegalForm struct {
-	XMLName          xml.Name `xml:"CompanyLegalForm,omitempty" json:"CompanyLegalForm,omitempty"`
-	CompanyLegalForm string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"CompanyLegalForm,omitempty" json:"CompanyLegalForm,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type CustomizationID struct {
-	XMLName         xml.Name `xml:"CustomizationID,omitempty" json:"CustomizationID,omitempty"`
-	CustomizationID string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"CustomizationID,omitempty" json:"CustomizationID,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type Description struct {
-	XMLName     xml.Name `xml:"Description,omitempty" json:"Description,omitempty"`
-	Description string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"Description,omitempty" json:"Description,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type DocumentCurrencyCode struct {
-	XMLName              xml.Name `xml:"DocumentCurrencyCode,omitempty" json:"DocumentCurrencyCode,omitempty"`
-	DocumentCurrencyCode string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"DocumentCurrencyCode,omitempty" json:"DocumentCurrencyCode,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type ElectronicMail struct {
-	XMLName        xml.Name `xml:"ElectronicMail,omitempty" json:"ElectronicMail,omitempty"`
-	ElectronicMail string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"ElectronicMail,omitempty" json:"ElectronicMail,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type EndDate struct {
 	XMLName xml.Name `xml:"EndDate,omitempty" json:"EndDate,omitempty"`
-	EndDate string   `xml:",chardata" json:",omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type ID struct {
 	XMLName xml.Name `xml:"ID,omitempty" json:"ID,omitempty"`
-	ID      string   `xml:",chardata" json:",omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type IdentificationCode struct {
-	XMLName            xml.Name `xml:"IdentificationCode,omitempty" json:"IdentificationCode,omitempty"`
-	IdentificationCode string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"IdentificationCode,omitempty" json:"IdentificationCode,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type InvoiceTypeCode struct {
-	XMLName         xml.Name `xml:"InvoiceTypeCode,omitempty" json:"InvoiceTypeCode,omitempty"`
-	InvoiceTypeCode string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"InvoiceTypeCode,omitempty" json:"InvoiceTypeCode,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type InvoicedQuantity struct {
-	XMLName          xml.Name `xml:"InvoicedQuantity,omitempty" json:"InvoicedQuantity,omitempty"`
-	AttrunitCode     string   `xml:"unitCode,attr"  json:",omitempty"`
-	InvoicedQuantity string   `xml:",chardata" json:",omitempty"`
+	XMLName      xml.Name `xml:"InvoicedQuantity,omitempty" json:"InvoicedQuantity,omitempty"`
+	AttrunitCode string   `xml:"unitCode,attr"  json:",omitempty"`
+	Value        string   `xml:",chardata" json:",omitempty"`
 }
 
 type IssueDate struct {
-	XMLName   xml.Name `xml:"IssueDate,omitempty" json:"IssueDate,omitempty"`
-	IssueDate string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"IssueDate,omitempty" json:"IssueDate,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type ItemClassificationCode struct {
-	XMLName                xml.Name `xml:"ItemClassificationCode,omitempty" json:"ItemClassificationCode,omitempty"`
-	AttrlistID             string   `xml:"listID,attr"  json:",omitempty"`
-	ItemClassificationCode string   `xml:",chardata" json:",omitempty"`
+	XMLName    xml.Name `xml:"ItemClassificationCode,omitempty" json:"ItemClassificationCode,omitempty"`
+	AttrlistID string   `xml:"listID,attr"  json:",omitempty"`
+	Value      string   `xml:",chardata" json:",omitempty"`
 }
 
 type LineExtensionAmount struct {
-	XMLName             xml.Name `xml:"LineExtensionAmount,omitempty" json:"LineExtensionAmount,omitempty"`
-	AttrcurrencyID      string   `xml:"currencyID,attr"  json:",omitempty"`
-	LineExtensionAmount string   `xml:",chardata" json:",omitempty"`
+	XMLName        xml.Name `xml:"LineExtensionAmount,omitempty" json:"LineExtensionAmount,omitempty"`
+	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
 }
 
 type LineID struct {
 	XMLName xml.Name `xml:"LineID,omitempty" json:"LineID,omitempty"`
-	LineID  string   `xml:",chardata" json:",omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type Name struct {
 	XMLName xml.Name `xml:"Name,omitempty" json:"Name,omitempty"`
-	Name    string   `xml:",chardata" json:",omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type Note struct {
 	XMLName xml.Name `xml:"Note,omitempty" json:"Note,omitempty"`
-	Note    string   `xml:",chardata" json:",omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type PayableAmount struct {
 	XMLName        xml.Name `xml:"PayableAmount,omitempty" json:"PayableAmount,omitempty"`
 	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
-	PayableAmount  string   `xml:",chardata" json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
 }
 
 type PaymentMeansCode struct {
-	XMLName          xml.Name `xml:"PaymentMeansCode,omitempty" json:"PaymentMeansCode,omitempty"`
-	PaymentMeansCode string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"PaymentMeansCode,omitempty" json:"PaymentMeansCode,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type Percent struct {
 	XMLName xml.Name `xml:"Percent,omitempty" json:"Percent,omitempty"`
-	Percent string   `xml:",chardata" json:",omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type PostalZone struct {
-	XMLName    xml.Name `xml:"PostalZone,omitempty" json:"PostalZone,omitempty"`
-	PostalZone string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"PostalZone,omitempty" json:"PostalZone,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type CountrySubentityCode struct {
+	XMLName xml.Name `xml:"CountrySubentityCode,omitempty" json:"CountrySubentityCode,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type PriceAmount struct {
 	XMLName        xml.Name `xml:"PriceAmount,omitempty" json:"PriceAmount,omitempty"`
 	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
-	PriceAmount    string   `xml:",chardata" json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
 }
 
 type RegistrationName struct {
-	XMLName          xml.Name `xml:"RegistrationName,omitempty" json:"RegistrationName,omitempty"`
-	RegistrationName string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"RegistrationName,omitempty" json:"RegistrationName,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type StartDate struct {
-	XMLName   xml.Name `xml:"StartDate,omitempty" json:"StartDate,omitempty"`
-	StartDate string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"StartDate,omitempty" json:"StartDate,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type StreetName struct {
-	XMLName    xml.Name `xml:"StreetName,omitempty" json:"StreetName,omitempty"`
-	StreetName string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"StreetName,omitempty" json:"StreetName,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type TaxAmount struct {
 	XMLName        xml.Name `xml:"TaxAmount,omitempty" json:"TaxAmount,omitempty"`
 	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
-	TaxAmount      string   `xml:",chardata" json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
 }
 
 type TaxCurrencyCode struct {
-	XMLName         xml.Name `xml:"TaxCurrencyCode,omitempty" json:"TaxCurrencyCode,omitempty"`
-	TaxCurrencyCode string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"TaxCurrencyCode,omitempty" json:"TaxCurrencyCode,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type TaxExclusiveAmount struct {
-	XMLName            xml.Name `xml:"TaxExclusiveAmount,omitempty" json:"TaxExclusiveAmount,omitempty"`
-	AttrcurrencyID     string   `xml:"currencyID,attr"  json:",omitempty"`
-	TaxExclusiveAmount string   `xml:",chardata" json:",omitempty"`
+	XMLName        xml.Name `xml:"TaxExclusiveAmount,omitempty" json:"TaxExclusiveAmount,omitempty"`
+	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
 }
 
 type TaxInclusiveAmount struct {
-	XMLName            xml.Name `xml:"TaxInclusiveAmount,omitempty" json:"TaxInclusiveAmount,omitempty"`
-	AttrcurrencyID     string   `xml:"currencyID,attr"  json:",omitempty"`
-	TaxInclusiveAmount string   `xml:",chardata" json:",omitempty"`
+	XMLName        xml.Name `xml:"TaxInclusiveAmount,omitempty" json:"TaxInclusiveAmount,omitempty"`
+	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
 }
 
 type TaxableAmount struct {
 	XMLName        xml.Name `xml:"TaxableAmount,omitempty" json:"TaxableAmount,omitempty"`
 	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
-	TaxableAmount  string   `xml:",chardata" json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
+}
+
+type TaxPointDate struct {
+	XMLName xml.Name `xml:"TaxPointDate,omitempty" json:"TaxPointDate,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
 type Telephone struct {
-	XMLName   xml.Name `xml:"Telephone,omitempty" json:"Telephone,omitempty"`
-	Telephone string   `xml:",chardata" json:",omitempty"`
+	XMLName xml.Name `xml:"Telephone,omitempty" json:"Telephone,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
 }
 
-type CInvoice2__ubl struct {
-	XMLName                 xml.Name                `xml:"Invoice,omitempty" json:"Invoice,omitempty"`
-	AttrXmlnscac            string                  `xml:"xmlns cac,attr"  json:",omitempty"`
-	AttrXmlnscbc            string                  `xml:"xmlns cbc,attr"  json:",omitempty"`
-	AttrXmlnsubl            string                  `xml:"xmlns ubl,attr"  json:",omitempty"`
-	AccountingCustomerParty AccountingCustomerParty `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AccountingCustomerParty,omitempty" json:"AccountingCustomerParty,omitempty"`
-	AccountingSupplierParty AccountingSupplierParty `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AccountingSupplierParty,omitempty" json:"AccountingSupplierParty,omitempty"`
-	BuyerReference          BuyerReference          `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 BuyerReference,omitempty" json:"BuyerReference,omitempty"`
-	CustomizationID         CustomizationID         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CustomizationID,omitempty" json:"CustomizationID,omitempty"`
-	DocumentCurrencyCode    DocumentCurrencyCode    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 DocumentCurrencyCode,omitempty" json:"DocumentCurrencyCode,omitempty"`
-	ID                      ID                      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
-	InvoiceLine             []InvoiceLine           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 InvoiceLine,omitempty" json:"InvoiceLine,omitempty"`
-	InvoiceTypeCode         InvoiceTypeCode         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 InvoiceTypeCode,omitempty" json:"InvoiceTypeCode,omitempty"`
-	IssueDate               IssueDate               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 IssueDate,omitempty" json:"IssueDate,omitempty"`
-	LegalMonetaryTotal      LegalMonetaryTotal      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 LegalMonetaryTotal,omitempty" json:"LegalMonetaryTotal,omitempty"`
-	Note                    Note                    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
-	PaymentMeans            PaymentMeans            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentMeans,omitempty" json:"PaymentMeans,omitempty"`
-	PaymentTerms            PaymentTerms            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentTerms,omitempty" json:"PaymentTerms,omitempty"`
-	TaxCurrencyCode         TaxCurrencyCode         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxCurrencyCode,omitempty" json:"TaxCurrencyCode,omitempty"`
-	TaxTotal                TaxTotal                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxTotal,omitempty" json:"TaxTotal,omitempty"`
+type Telefax struct {
+	XMLName xml.Name `xml:"Telefax,omitempty" json:"Telefax,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type UBLVersionID struct {
+	XMLName xml.Name `xml:"UBLVersionID,omitempty" json:"UBLVersionID,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type AllowanceCharge struct {
+	XMLName                 xml.Name                `xml:"AllowanceCharge,omitempty" json:"AllowanceCharge,omitempty"`
+	AllowanceChargeReason   AllowanceChargeReason   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 AllowanceChargeReason,omitempty" json:"AllowanceChargeReason,omitempty"`
+	Amount                  Amount                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Amount,omitempty" json:"Amount,omitempty"`
+	BaseAmount              BaseAmount              `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 BaseAmount,omitempty" json:"BaseAmount,omitempty"`
+	ChargeIndicator         ChargeIndicator         `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ChargeIndicator,omitempty" json:"ChargeIndicator,omitempty"`
+	MultiplierFactorNumeric MultiplierFactorNumeric `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 MultiplierFactorNumeric,omitempty" json:"MultiplierFactorNumeric,omitempty"`
+}
+
+type BaseAmount struct {
+	XMLName        xml.Name `xml:"BaseAmount,omitempty" json:"BaseAmount,omitempty"`
+	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
+}
+
+type ChargeIndicator struct {
+	XMLName xml.Name `xml:"ChargeIndicator,omitempty" json:"ChargeIndicator,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type AllowanceChargeReason struct {
+	XMLName xml.Name `xml:"AllowanceChargeReason,omitempty" json:"AllowanceChargeReason,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type Amount struct {
+	XMLName        xml.Name `xml:"Amount,omitempty" json:"Amount,omitempty"`
+	AttrcurrencyID string   `xml:"currencyID,attr"  json:",omitempty"`
+	Value          string   `xml:",chardata" json:",omitempty"`
+}
+
+type MultiplierFactorNumeric struct {
+	XMLName xml.Name `xml:"MultiplierFactorNumeric,omitempty" json:"MultiplierFactorNumeric,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type Delivery struct {
+	XMLName            xml.Name           `xml:"Delivery,omitempty" json:"Delivery,omitempty"`
+	ActualDeliveryDate ActualDeliveryDate `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ActualDeliveryDate,omitempty" json:"ActualDeliveryDate,omitempty"`
+	DeliveryLocation   DeliveryLocation   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 DeliveryLocation,omitempty" json:"DeliveryLocation,omitempty"`
+}
+
+type ActualDeliveryDate struct {
+	XMLName xml.Name `xml:"ActualDeliveryDate,omitempty" json:"ActualDeliveryDate,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type DeliveryLocation struct {
+	XMLName xml.Name `xml:"DeliveryLocation,omitempty" json:"DeliveryLocation,omitempty"`
+	Address Address  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Address,omitempty" json:"Address,omitempty"`
+	ID      ID       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+}
+
+type Address struct {
+	XMLName              xml.Name             `xml:"Address,omitempty" json:"Address,omitempty"`
+	AdditionalStreetName AdditionalStreetName `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 AdditionalStreetName,omitempty" json:"AdditionalStreetName,omitempty"`
+	BuildingNumber       BuildingNumber       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 BuildingNumber,omitempty" json:"BuildingNumber,omitempty"`
+	CityName             CityName             `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CityName,omitempty" json:"CityName,omitempty"`
+	CountrySubentity     CountrySubentity     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CountrySubentity,omitempty" json:"CountrySubentity,omitempty"`
+	Country              Country              `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Country,omitempty" json:"Country,omitempty"`
+	PostalZone           PostalZone           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 PostalZone,omitempty" json:"PostalZone,omitempty"`
+	StreetName           StreetName           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 StreetName,omitempty" json:"StreetName,omitempty"`
+}
+
+type AdditionalStreetName struct {
+	XMLName xml.Name `xml:"AdditionalStreetName,omitempty" json:"AdditionalStreetName,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type BuildingNumber struct {
+	XMLName xml.Name `xml:"BuildingNumber,omitempty" json:"BuildingNumber,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type OrderReference struct {
+	XMLName xml.Name `xml:"OrderReference,omitempty" json:"OrderReference,omitempty"`
+	ID      ID       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+}
+
+type DocumentType struct {
+	XMLName xml.Name `xml:"DocumentType,omitempty" json:"DocumentType,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type AdditionalDocumentReference struct {
+	XMLName      xml.Name     `xml:"AdditionalDocumentReference,omitempty" json:"AdditionalDocumentReference,omitempty"`
+	Attachment   Attachment   `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Attachment,omitempty" json:"Attachment,omitempty"`
+	DocumentType DocumentType `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 DocumentType,omitempty" json:"DocumentType,omitempty"`
+	ID           ID           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+}
+
+type Attachment struct {
+	XMLName                      xml.Name                     `xml:"Attachment,omitempty" json:"Attachment,omitempty"`
+	EmbeddedDocumentBinaryObject EmbeddedDocumentBinaryObject `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 EmbeddedDocumentBinaryObject,omitempty" json:"EmbeddedDocumentBinaryObject,omitempty"`
+	ExternalReference            ExternalReference            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 ExternalReference,omitempty" json:"ExternalReference,omitempty"`
+}
+
+type EmbeddedDocumentBinaryObject struct {
+	XMLName      xml.Name `xml:"EmbeddedDocumentBinaryObject,omitempty" json:"EmbeddedDocumentBinaryObject,omitempty"`
+	AttrmimeCode string   `xml:"mimeCode,attr"  json:",omitempty"`
+	Value        string   `xml:",chardata" json:",omitempty"`
+}
+
+type ExternalReference struct {
+	XMLName xml.Name `xml:"ExternalReference,omitempty" json:"ExternalReference,omitempty"`
+	URI     URI      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 URI,omitempty" json:"URI,omitempty"`
+}
+
+type URI struct {
+	XMLName xml.Name `xml:"URI,omitempty" json:"URI,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type PayeeParty struct {
+	XMLName             xml.Name            `xml:"PayeeParty,omitempty" json:"PayeeParty,omitempty"`
+	PartyIdentification PartyIdentification `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyIdentification,omitempty" json:"PartyIdentification,omitempty"`
+	PartyLegalEntity    PartyLegalEntity    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyLegalEntity,omitempty" json:"PartyLegalEntity,omitempty"`
+	PartyName           PartyName           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PartyName,omitempty" json:"PartyName,omitempty"`
+}
+
+type AccountingCost struct {
+	XMLName xml.Name `xml:"AccountingCost,omitempty" json:"AccountingCost,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
+type ContractDocumentReference struct {
+	XMLName      xml.Name     `xml:"ContractDocumentReference,omitempty" json:"ContractDocumentReference,omitempty"`
+	DocumentType DocumentType `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 DocumentType,omitempty" json:"DocumentType,omitempty"`
+	ID           ID           `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+}
+
+type Invoice2 struct {
+	XMLName                     xml.Name                      `xml:"Invoice,omitempty" json:"Invoice,omitempty"`
+	AttrXmlnscac                string                        `xml:"xmlns cac,attr"  json:",omitempty"`
+	AttrXmlnscbc                string                        `xml:"xmlns cbc,attr"  json:",omitempty"`
+	AttrXmlnsubl                string                        `xml:"xmlns ubl,attr"  json:",omitempty"`
+	AccountingCost              AccountingCost                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 AccountingCost,omitempty" json:"AccountingCost,omitempty"`
+	AccountingCustomerParty     AccountingCustomerParty       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AccountingCustomerParty,omitempty" json:"AccountingCustomerParty,omitempty"`
+	AccountingSupplierParty     AccountingSupplierParty       `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AccountingSupplierParty,omitempty" json:"AccountingSupplierParty,omitempty"`
+	AdditionalDocumentReference []AdditionalDocumentReference `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AdditionalDocumentReference,omitempty" json:"AdditionalDocumentReference,omitempty"`
+	AllowanceCharge             []AllowanceCharge             `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 AllowanceCharge,omitempty" json:"AllowanceCharge,omitempty"`
+	BuyerReference              BuyerReference                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 BuyerReference,omitempty" json:"BuyerReference,omitempty"`
+	ContractDocumentReference   ContractDocumentReference     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 ContractDocumentReference,omitempty" json:"ContractDocumentReference,omitempty"`
+	CustomizationID             CustomizationID               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 CustomizationID,omitempty" json:"CustomizationID,omitempty"`
+	Delivery                    Delivery                      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 Delivery,omitempty" json:"Delivery,omitempty"`
+	DocumentCurrencyCode        DocumentCurrencyCode          `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 DocumentCurrencyCode,omitempty" json:"DocumentCurrencyCode,omitempty"`
+	ID                          ID                            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ID,omitempty" json:"ID,omitempty"`
+	InvoiceLine                 []InvoiceLine                 `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 InvoiceLine,omitempty" json:"InvoiceLine,omitempty"`
+	InvoicePeriod               InvoicePeriod                 `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 InvoicePeriod,omitempty" json:"InvoicePeriod,omitempty"`
+	InvoiceTypeCode             InvoiceTypeCode               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 InvoiceTypeCode,omitempty" json:"InvoiceTypeCode,omitempty"`
+	IssueDate                   IssueDate                     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 IssueDate,omitempty" json:"IssueDate,omitempty"`
+	LegalMonetaryTotal          LegalMonetaryTotal            `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 LegalMonetaryTotal,omitempty" json:"LegalMonetaryTotal,omitempty"`
+	Note                        Note                          `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 Note,omitempty" json:"Note,omitempty"`
+	OrderReference              OrderReference                `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 OrderReference,omitempty" json:"OrderReference,omitempty"`
+	PayeeParty                  PayeeParty                    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PayeeParty,omitempty" json:"PayeeParty,omitempty"`
+	PaymentMeans                PaymentMeans                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentMeans,omitempty" json:"PaymentMeans,omitempty"`
+	PaymentTerms                PaymentTerms                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentTerms,omitempty" json:"PaymentTerms,omitempty"`
+	TaxCurrencyCode             TaxCurrencyCode               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxCurrencyCode,omitempty" json:"TaxCurrencyCode,omitempty"`
+	TaxPointDate                TaxPointDate                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxPointDate,omitempty" json:"TaxPointDate,omitempty"`
+	TaxTotal                    TaxTotal                      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxTotal,omitempty" json:"TaxTotal,omitempty"`
+	UBLVersionID                UBLVersionID                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 UBLVersionID,omitempty" json:"UBLVersionID,omitempty"`
+	task                        []string
 }
 
 ///////////////////////////

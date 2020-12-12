@@ -12,9 +12,11 @@ import (
 func TestXMLToStructure(t *testing.T) {
 	var myXMLData string
 	var myFileData []byte
-	var myXRechnung CInvoice2__ubl
+	var myXRechnung Invoice2
 
-	xmlFile, err := os.Open("01.01a-INVOICE_ubl.xml")
+	//xmlFile, err := os.Open("UBL-Invoice-2.0-Example.xml")
+	//xmlFile, err := os.Open("01.01a-INVOICE_ubl.xml") //
+	xmlFile, err := os.Open("UBL-Invoice-2.1-Example.xml")
 	defer xmlFile.Close()
 	myFileData, _ = ioutil.ReadAll(xmlFile)
 	if err != nil {
@@ -29,7 +31,7 @@ func TestXMLToStructure(t *testing.T) {
 	tests := []struct {
 		name           string
 		args           args
-		wantXstructure CInvoice2__ubl
+		wantXstructure Invoice2
 		wantErr        bool
 	}{
 		{
@@ -56,9 +58,9 @@ func TestXMLToStructure(t *testing.T) {
 
 func TestStructureToXML(t *testing.T) {
 	type args struct {
-		xstructure CInvoice2__ubl
+		xstructure Invoice2
 	}
-	var myInvoice CInvoice2__ubl
+	var myInvoice Invoice2
 
 	tests := []struct {
 		name        string
