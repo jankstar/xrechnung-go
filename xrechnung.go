@@ -1,4 +1,4 @@
-// Package xrechnung - Library for processing electronic invoices - german xrechnung 2.0 **/
+// Package xrechnung - Library for processing electronic invoices - german xrechnung 3.0.1 **/
 package xrechnung
 
 import (
