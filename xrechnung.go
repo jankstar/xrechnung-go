@@ -1,4 +1,4 @@
-//Package xrechnung - Library for processing electronic invoices - german xrechnung 2.0 **/
+// Package xrechnung - Library for processing electronic invoices - german xrechnung 2.0 **/
 package xrechnung
 
 import (
@@ -23,7 +23,7 @@ type InvoiceDataElement struct {
 	Error       error
 }
 
-//XMLConvertStructure Converts the XML string data into structural data and checks fields
+// XMLConvertStructure Converts the XML string data into structural data and checks fields
 func (me Invoice2) XMLConvertStructure() (HeadFields []InvoiceDataElement, err error) {
 	// check whether CheckAndConvert has already run
 	for _, e := range me.task {
@@ -84,7 +84,7 @@ func (me Invoice2) XMLConvertStructure() (HeadFields []InvoiceDataElement, err e
 	if lElement.Value == "" {
 		lElement.Error = errors.New(fmt.Sprintf("Error field '%s' no value", lElement.Name))
 	} else {
-		for _, e := range CInvoiceCypeCode {
+		for _, e := range CInvoiceTypeCode {
 			if e.ID == lElement.Value {
 				lElement.Code = e
 				break
@@ -172,13 +172,13 @@ func (me Invoice2) XMLConvertStructure() (HeadFields []InvoiceDataElement, err e
 	return
 }
 
-//XMLToStructure returns the structure of the xcalculation from XML string
+// XMLToStructure returns the structure of the xcalculation from XML string
 func XMLToStructure(xmlData string) (xInvoice Invoice2, err error) {
 	err = xml.Unmarshal([]byte(xmlData), &xInvoice)
 	return
 }
 
-//StructureToXML returns the XML of the xcalculation from the structure
+// StructureToXML returns the XML of the xcalculation from the structure
 func StructureToXML(xInvoice Invoice2) (xmlData string, err error) {
 	if myBytesData, err := xml.Marshal(xInvoice); err == nil {
 		xmlData = string(myBytesData)
@@ -186,13 +186,13 @@ func StructureToXML(xInvoice Invoice2) (xmlData string, err error) {
 	return
 }
 
-//JsonToStructure returns the structure of the xcalculation from Json string
+// JsonToStructure returns the structure of the xcalculation from Json string
 func JsonToStructure(jsonData string) (xInvoice Invoice2, err error) {
 	err = json.Unmarshal([]byte(jsonData), &xInvoice)
 	return
 }
 
-//StructureToJson returns the Json of the xcalculation from the structure
+// StructureToJson returns the Json of the xcalculation from the structure
 func StructureToJson(xInvoice Invoice2) (jsonData string, err error) {
 	if myBytesData, err := json.Marshal(xInvoice); err == nil {
 		jsonData = string(myBytesData)

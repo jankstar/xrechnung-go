@@ -14,8 +14,8 @@ type TCode struct {
 	Text string
 }
 
-// CInvoiceCypeCode Catalogue of incoming invoice types
-var CInvoiceCypeCode = [8]TCode{
+// CInvoiceTypeCode Catalogue of incoming invoice types
+var CInvoiceTypeCode = [8]TCode{
 	{"326", "Partial invoice"},
 	{"380", "Commercial invoice"},
 	{"384", "Corrected invoice"},
