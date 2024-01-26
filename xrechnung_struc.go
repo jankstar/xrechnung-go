@@ -14,7 +14,7 @@ type TCode struct {
 	Text string
 }
 
-//CInvoiceCypeCode Catalogue of incoming invoice types
+// CInvoiceCypeCode Catalogue of incoming invoice types
 var CInvoiceCypeCode = [8]TCode{
 	{"326", "Partial invoice"},
 	{"380", "Commercial invoice"},
@@ -40,7 +40,7 @@ type TCurrencyElement struct {
 	MinorUnit    string
 }
 
-//CCurrency the currencies according to DIN ISO 4217 from https://www.iso.org/iso-4217-currency-codes.html
+// CCurrency the currencies according to DIN ISO 4217 from https://www.iso.org/iso-4217-currency-codes.html
 var CCurrency = [279]TCurrencyElement{
 	{"AFGHANISTAN", "Afghani", "AFN", "971", "2"},
 	{"ÅLAND ISLANDS", "Euro", "EUR", "978", "2"},
@@ -683,6 +683,11 @@ type PriceAmount struct {
 	Value          string   `xml:",chardata" json:",omitempty"`
 }
 
+type ProfileID struct {
+	XMLName xml.Name `xml:"ProfileID,omitempty" json:"ProfileID,omitempty"`
+	Value   string   `xml:",chardata" json:",omitempty"`
+}
+
 type RegistrationName struct {
 	XMLName xml.Name `xml:"RegistrationName,omitempty" json:"RegistrationName,omitempty"`
 	Value   string   `xml:",chardata" json:",omitempty"`
@@ -904,6 +909,7 @@ type Invoice2 struct {
 	PayeeParty                  PayeeParty                    `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PayeeParty,omitempty" json:"PayeeParty,omitempty"`
 	PaymentMeans                PaymentMeans                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentMeans,omitempty" json:"PaymentMeans,omitempty"`
 	PaymentTerms                PaymentTerms                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 PaymentTerms,omitempty" json:"PaymentTerms,omitempty"`
+	ProfileID                   ProfileID                     `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 ProfileID,omitempty" json:"ProfileID,omitempty"`
 	TaxCurrencyCode             TaxCurrencyCode               `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxCurrencyCode,omitempty" json:"TaxCurrencyCode,omitempty"`
 	TaxPointDate                TaxPointDate                  `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2 TaxPointDate,omitempty" json:"TaxPointDate,omitempty"`
 	TaxTotal                    TaxTotal                      `xml:"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2 TaxTotal,omitempty" json:"TaxTotal,omitempty"`
